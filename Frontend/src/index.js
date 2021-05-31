@@ -4,6 +4,10 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import 'react-datepicker/dist/react-datepicker.css';
+import 'bootstrap/dist/js/bootstrap'
+import * as moment from 'moment'
+
 ReactDOM.render(
   <React.StrictMode>
     <App />
