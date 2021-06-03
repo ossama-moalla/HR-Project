@@ -3,8 +3,6 @@ div.col>.row{
     margin-top:20;
     margin-bottom: 20;
 }
-label{
-    font-weight: 300;
-    background-color :whitesmoke;
-
+.ff{
+    background-color: wheat;
 }

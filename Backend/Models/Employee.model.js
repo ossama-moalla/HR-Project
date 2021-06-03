@@ -1,5 +1,5 @@
 const mongoose=require('mongoose');
-const Schyema=mongoose.Schema;
+const Schema=mongoose.Schema;
 const Currency=require('./Currency.model');
 const EmployeeSchema=new Schema({
     
@@ -12,12 +12,23 @@ const EmployeeSchema=new Schema({
         required:true
     },
     BirthDate:{
-        type:String,
-        required:true
+        Year:{
+            type:Number,
+            required:false
+        },
+        Month:{
+            type:Number,
+            required:false
+        },
+        Day:{
+            type:Number,
+            required:false
+        },
+        required:false
     },
     NationalID:{
         type:String,
-        required:true
+        required:false
     },
     MaritalStatus:{
         type:Number,
@@ -25,19 +36,23 @@ const EmployeeSchema=new Schema({
     },
     Mobile:{
         type:String,
-        required:true
+        required:false
     },
     Phone:{
         type:String,
-        required:true
+        required:false
+    },   
+    Email:{
+        type:String,
+        required:false
     },
     Address:{
         type:String,
-        required:true
+        required:false
     },
     Report:{
         type:String,
-        required:true
+        required:false
     },
     EmployeeImage:{
         required:false,
@@ -49,7 +64,18 @@ const EmployeeSchema=new Schema({
             ref: 'Currency',
             required:false
             
-    }
+    },
+    CertificateList:[{
+        Description:String,
+        University:String,
+        StartYear:String,
+        FinishYear:String
+    }],
+    QualificationList:[{
+        Description:String,
+        Period:String,
+        Notes:String,
+    }]
 },{
     timestamps:true
 });

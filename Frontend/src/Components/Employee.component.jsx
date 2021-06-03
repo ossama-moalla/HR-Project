@@ -3,19 +3,47 @@ import axios from 'axios';
 import './components.css';
 import DatePicker from 'react-datepicker';
 import { ChevronBarDown  } from 'bootstrap-icons-react';
+import * as moment from 'moment'
+import DateInput from './DateInput.component';
 
-export default class AddEmployee extends Component{
+
+export default class Employee extends Component{
     constructor(props)
     {
         super(props);
+        if(this.props.location.state.employee!==undefined)
+        {
+            const {employee}=this.props.location.state;
+            this.state.Method=1;
+            this.state.EmployeeID=employee._id;
+            this.state.EmployeeName=employee.EmployeeName;
+            this.state.Gender=employee.Gender;
+            this.state.BirthDate=employee.BirthDate;
+            this.state.NationalID=employee.NationalID;
+            this.state.MaritalStatus=employee.MaritalStatus;
+            this.state.Mobile=employee.Mobile;
+            this.state.Phone=employee.Phone;
+            this.state.Email=employee.Email;
+            this.state.Address=employee.Address;
+            this.state.Report=employee.Report;
+            this.state.EmployeeImageTemp=employee.EmployeeImage;
+            this.state.EmployeeImageFile=undefined;
+            this.state.CurrencyID=employee.CurrencyID;
+            this.state.CertificateList=employee.CertificateList;
+            this.state.QualificationList=employee.QualificationList
+
+        }
+
     }
 
     state={
+            Method:0,
+          EmployeeID:undefined,
           EmployeeName:"",
-          Gender:null,
-          BirthDate:new Date(),
+          Gender:true,
+          BirthDate:{Day:1,Month:1,Year:1990},
           NationalID:"",
-          MaritalStatus:null,
+          MaritalStatus:1,
           Mobile:"",
           Phone:"",
           Email:"",
@@ -25,11 +53,9 @@ export default class AddEmployee extends Component{
           EmployeeImageFile:undefined,
           CurrencyID:null,
           CertificateList:[],
-          QualificationList:[]
+          QualificationList:[],
+          ErrorMessage:undefined
     
-    }
-     readfile=async (params) =>{
-        
     }
     readFile=(e)=>{
             return new Promise((resolve) => {
@@ -38,7 +64,26 @@ export default class AddEmployee extends Component{
               reader.readAsDataURL(e)
             })
     }
+    ShowError()
+    {
+        if(this.state.ErrorMessage)
+        return(
+                <div style={{width:500,margin:"auto",marginTop:20}} class="alert alert-danger d-flex align-items-center" role="alert">
+
+                        <div style={{marginLeft:20}}>{this.state.ErrorMessage}</div>
+                </div>
+        )
+        else return(
+            <div></div>)
+    }
     onsubmit=async(e)=>{
+        if(this.state.EmployeeName==='' ||this.state.EmployeeName.length<10)
+        {
+            this.setState({ErrorMessage:'Employee Name Is Required and Length must be at least 10 chars'});
+            return
+
+        }
+        this.setState({ErrorMessage:undefined})
         e.preventDefault(); 
         var reader = new FileReader();
         var result=[];
@@ -47,31 +92,110 @@ export default class AddEmployee extends Component{
              result=await this.readFile(this.state.EmployeeImageFile);
 
         }catch{
-            result=[]
+            result=undefined
         }
-            const item={
-                ItemName:this.state.ItemName,
-                ItemCompany:this.state.ItemCompany,
-                FolderID:this.state.FolderID,
-                ItemImage:result
-            }
+        const employee={
+          EmployeeID:this.state.EmployeeID,
+          EmployeeName:this.state.EmployeeName,
+          Gender:this.state.Gender,
+          BirthDate:this.state.BirthDate,
+          NationalID:this.state.NationalID,
+          MaritalStatus:this.state.MaritalStatus,
+          Mobile:this.state.Mobile,
+          Phone:this.state.Phone,
+          Email:this.state.Email,
+          Address:this.state.Address,
+          Report:this.state.Report,
+          EmployeeImage:result,
+          CurrencyID:null,
+          CertificateList:this.state.CertificateList,
+          QualificationList:this.state.QualificationList
+    
+    }
             
-
-            await axios.post("http://localhost:5000/item/add",item)
-            .then(res=>console.log('item added'))
-            .catch(err=>console.log('Client:item add error:'+err.response.data)); 
+        if(this.state.Method===0){
+            await axios.post("http://localhost:5000/employee/add",employee)
+            .then(res=>{console.log('Employee Added');
             this.props.history.push({
-                pathname: '/folders/',
-                state: { ParentFolderID: this.state.FolderID }
-           })        
+                pathname: '/',
+           })})
+            .catch(err=>{
+                let Message;
+                if(err.response)
+                    Message=err.response.data
+                else if(err.request)
+                    Message='No Response From Server'
+                else 
+                    Message=err.message
+                
+                this.setState({ErrorMessage:Message
+                })    
+            
+            }); 
+            
+        }else{
+            console.log(employee.Gender)
+            await axios.put("http://localhost:5000/employee/edit",employee)
+            .then(res=>{console.log('Employee Updated');
+            this.props.history.push({
+                pathname: '/',
+           })})
+            .catch(err=>{
+                let Message;
+                if(err.response)
+                    Message=err.response.data
+                else if(err.request)
+                    Message='No Response From Server'
+                else 
+                    Message=err.message
+                
+                this.setState({ErrorMessage:Message
+                })
+            }); 
+            
+        }
+                   
             
     }
-    onChangeItemName=(e)=>{
-        this.setState({ItemName:e.target.value});
+    onChangeEmployeeName=(e)=>{
+        this.setState({EmployeeName:e.target.value});
     }
-    onChangeItemCompany=(e)=>{
-        this.setState({ItemCompany:e.target.value});
+    onChangeGender=async(e)=>{
+         this.setState({Gender:Number(e.target.value)===0?false:true});
     }
+    onChangeBirthDate=(date)=>{
+         this.setState({BirthDate:{
+            Year:date.Year,
+            Month:date.Month,
+            Day:date.Day,
+
+        }});
+    }
+    onChangeNationalID=(e)=>{
+        this.setState({NationalID:e.target.value});
+    }
+    onChangeMaritalStatus=(e)=>{
+        this.setState({MaritalStatus:e.target.value});
+    }
+    onChangeMobile=(e)=>{
+        this.setState({Mobile:e.target.value});
+    }
+    onChangePhone=(e)=>{
+        this.setState({Phone:e.target.value});
+    }
+    onChangeEmail=(e)=>{
+        this.setState({Email:e.target.value});
+    }
+    onChangeAddress=(e)=>{
+        this.setState({Address:e.target.value});
+    }
+    onChangeReport=(e)=>{
+        this.setState({Report:e.target.value});
+    }
+    onChangeCurrencyID=(e)=>{
+        this.setState({CurrencyID:e.target.value});
+    }
+ 
     
     onChangeEmployeeImageURL =async(event)  => {
         if (event.target.files && event.target.files[0]) {
@@ -86,7 +210,12 @@ export default class AddEmployee extends Component{
       };
 
     render(){
-        console.log('render')
+        const style={
+            LabelInputheader:{
+                backgroundColor :"wheat"
+
+            }
+        }
         return(
             <div className="container">
                 <div className="row" style={{border:"ridge",marginTop:15}}>
@@ -108,78 +237,83 @@ export default class AddEmployee extends Component{
                                         <label >Employee Name</label>
                                         <input type="text"
                                         required className="form-control" 
-                                        value={this.state.ItemName}
+                                        value={this.state.EmployeeName}
                                         placeholder="Employee Name..."
-                                        onChange={this.onChangeItemName}
+                                        onChange={this.onChangeEmployeeName}
                                         autoFocus
                                         />
                                     </div>
                             
                                     <div className="row mt-3">
-                                        <div className="col">
-                                            <label>Gender:</label><br/>
+                                    <div className="col-6 ">
+                                            <label style={{padding:0, margin:0}}>Birth Date:</label><br/>
+                                            <div className="form-group border border-1 rounded" 
+                                            style={{paddingLeft:20,paddingTop:0}}>
+                                                <DateInput onChange={this.onChangeBirthDate}
+                                                BirthDate={this.state.BirthDate}/>
+
+                                            </div>
+                                        </div>
+                                        <div className="col-3">
+                                            <label className="InputHeader">Gender:</label><br/>
                                             <div className="form-group">
                                                 <div className="form-check form-check-inline">
-                                                <input className="form-check-input" type="radio" name="inlineRadioOptions"
-                                                id="inlineRadio1" value="option1" defaultChecked/>
-                                                <label className="form-check-label" htmlFor="inlineRadio1">Male</label>
+                                                    <input className="form-check-input" type="radio" name="inlineRadioOptions"
+                                                    id="inlineRadio1" value="1" onChange={this.onChangeGender}
+                                                    checked={this.state.Gender}
+                                                    />
+                                                    <label className="form-check-label" htmlFor="inlineRadio1">Male</label>
                                                 </div>
                                                 <div className="form-check form-check-inline">
-                                                <input className="form-check-input" type="radio" name="inlineRadioOptions"
-                                                id="inlineRadio2" value="option2"/>
-                                                <label className="form-check-label" htmlFor="inlineRadio2">Female</label>
+                                                    <input className="form-check-input" type="radio" name="inlineRadioOptions"
+                                                    id="inlineRadio2" value="0" onChange={this.onChangeGender}
+                                                    checked={!this.state.Gender}
+                                                    />
+                                                    <label className="form-check-label" htmlFor="inlineRadio2">Female</label>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="col">
+                                        <div className="col-3">
                                             <label>Material Status:</label>
-                                            <select className="form-select" >
+                                            <select className="form-select" onChange={this.onChangeMaritalStatus} >
                                             <option value="1">Single</option>
                                             <option value="2">Married</option>
-                                            <option value="3">divorced</option>
+                                            <option value="3">Divorced</option>
                                             <option value="4">Widower</option>
 
                                             </select>
                                         </div>
-                                        <div className="col">
-                                            <label>Birth Date:</label><br/>
-                                            <div className="form-group">
-                                                <DatePicker
-                                                    dateFormat="dd/MM/yyyy"
-                                                    selected={new Date()}/>
-                                            </div>
-                                        </div>
+                                        
                                     </div>
                                     <div className="row mt-3">
-                                        <label >National ID:</label>
+                                        <div className="col" >
+                                            <label >National ID:</label>
+                                            <input type="text"
+                                            required className="form-control" 
+                                            value={this.state.NationalID}
+                                            placeholder="National ID..."
+                                            onChange={this.onChangeNationalID}
 
-                                        <input type="text"
-                                        required className="form-control" 
-                                        value={this.state.ItemName}
-                                        placeholder="National ID..."
-                                        onChange={this.onChangeItemName}
-                                        autoFocus
-                                        />    
-                                    </div>
-                                     <div className="row mt-3">
+                                            />
+                                        </div>
                                         <div className="col">
                                             <label>Mobile:</label><br/>
                                             <input type="text"
                                             required className="form-control" 
-                                            value={this.state.ItemName}
+                                            value={this.state.Mobile}
                                             placeholder="Mobile..."
-                                            onChange={this.onChangeItemName}
-                                            autoFocus
+                                            onChange={this.onChangeMobile}
+                                            
                                             />
                                         </div>
                                     <div className="col">
                                         <label>Phone:</label>
                                         <input type="text"
                                         required className="form-control" 
-                                        value={this.state.ItemName}
+                                        value={this.state.Phone}
                                         placeholder="Phone..."
-                                        onChange={this.onChangeItemName}
-                                        autoFocus
+                                        onChange={this.onChangePhone}
+                                        
                                         />
                                     </div>
                                 </div>
@@ -188,10 +322,10 @@ export default class AddEmployee extends Component{
                                         <label >Email:</label>
                                         <input type="text"
                                         required className="form-control" 
-                                        value={this.state.ItemName}
+                                        value={this.state.Email}
                                         placeholder="Email..."
-                                        onChange={this.onChangeItemName}
-                                        autoFocus
+                                        onChange={this.onChangeEmail}
+                                        
                                         />    
 
                                     </div>
@@ -199,10 +333,10 @@ export default class AddEmployee extends Component{
                                         <label >Address:</label>
                                         <input type="text"
                                         required className="form-control" 
-                                        value={this.state.ItemName}
+                                        value={this.state.Address}
                                         placeholder="Address..."
-                                        onChange={this.onChangeItemName}
-                                        autoFocus
+                                        onChange={this.onChangeAddress}
+                                        
                                         />    
 
                                     </div>
@@ -212,10 +346,10 @@ export default class AddEmployee extends Component{
 
                                     <input type="text"
                                     required className="form-control" 
-                                    value={this.state.ItemName}
+                                    value={this.state.Report}
                                     placeholder="Report..."
-                                    onChange={this.onChangeItemName}
-                                    autoFocus
+                                    onChange={this.onChangeReport}
+                                    
                                     />    
                                 </div>
                         
@@ -260,16 +394,23 @@ export default class AddEmployee extends Component{
                         </div>          
                     
                 </div>
+                {
+                    this.ShowError()
+                }
                 <div className="row" style={{margin:10}}>
-                    <div style={{margin:"auto",float:"left",width:400}}>
-                        <input type="submit"  value="Add Employee" className="btn btn-primary" 
-                        style={{margin:5,width:200,height:50}}/>
-                        <button style={{margin:5,width:100,height:50}} className="btn btn-primary" onClick={()=>{this.props.history.push({
-                                pathname: '/'
-                            })}}>Back</button>     
+                    <div style={{margin:"auto",float:"left",width:250}}>
+                        <div>
+                            <button onClick={this.onsubmit}  value="Save " className="btn btn-primary" 
+                            style={{margin:5,width:100,height:50}}> Save </button>
+                            <button style={{margin:5,width:100,height:50}} className="btn btn-primary" onClick={()=>{this.props.history.push({
+                                    pathname: '/'
+                                })}}>Back</button>
+                        </div>        
                     </div>
-                   
+                    
                 </div>
+                
+                
             </div>
         );
 
@@ -330,7 +471,7 @@ class Certificates extends Component{
                                         value={this.state.Description}
                                         placeholder="Name..."
                                         onChange={this.onChangeDescription}
-                                        autoFocus
+                                        
                                         />    
                                     </div>
                                     <div className="col-md-4">
@@ -399,7 +540,6 @@ class Certificates extends Component{
                             <tbody>
                             {
                                 this.props.CertificateList.map(function(currentCer, i){
-                                    console.log('test');
                                     return <tr key={i}>
                                         <td>
                                         <img src={process.env.PUBLIC_URL + '/certificate.png'} style={{width:25,height:25,marginTop:-8,marginRight:5}} /> 
@@ -465,7 +605,7 @@ class Qualifications extends Component{
                                         value={this.state.Description}
                                         placeholder="Name..."
                                         onChange={this.onChangeDescription}
-                                        autoFocus
+                                        
                                         />    
                                     </div>
                                     <div className="col-md-2">
@@ -522,7 +662,6 @@ class Qualifications extends Component{
                             <tbody>
                             {
                                 this.props.QualificationList.map(function(currentQ, i){
-                                    console.log('test');
                                     return <tr className="table-primary" key={i}>
                                         <td>
                                             <img src={process.env.PUBLIC_URL + '/qualafication.png'} style={{width:25,height:25,marginTop:-8,marginRight:5}} /> 

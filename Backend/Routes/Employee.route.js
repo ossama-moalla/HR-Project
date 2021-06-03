@@ -3,7 +3,7 @@ const mongoose=require('mongoose');
 const Employee = require('../Models/Employee.model');
 
 
-router.route('/').get((req,res)=>{
+router.route('/list').get((req,res)=>{
     Employee.find()
     .then(employee=>res.json(employee))
     .catch(err=>res.status(400).json('Server-ErrorHandle:'+err));
@@ -17,20 +17,24 @@ router.route('/add').post((req,res)=>{
     employee.MaritalStatus=req.body.MaritalStatus;
     employee.Mobile=req.body.Mobile;
     employee.Phone=req.body.Phone;
+    employee.Email=req.body.Email;
     employee.Address=req.body.Address;
     employee.Report=req.body.Report;
     employee.EmployeeImage=req.body.EmployeeImage;
     employee.CurrencyID=req.body.CurrencyID;
-    
+    employee.CertificateList=req.body.CertificateList;
+    employee.QualificationList=req.body.QualificationList;
+
     employee.save()
     .then(()=>{
         res.json('Employee added')})
     .catch(err=>{
+
         res.status(400).json('SERVER Replay:Add Employee ERROR:'+err);}); 
 })
 ;
 
-router.route('/update').put((req,res)=>{
+router.route('/edit').put((req,res)=>{
     Employee.findById(req.body.EmployeeID)
     .then(employee=>{
         
@@ -49,10 +53,11 @@ router.route('/update').put((req,res)=>{
     employee.save();
 })
 .then(()=>res.json('Employee updated'))
-.catch(err=>{ res.status(400).json('Update Employee Error:'+err)})
+.catch(err=>{
+    res.status(400).json('Update Employee Error:'+err)})
 });
 
-router.route('/delete').delete((req,res)=>{
+router.route('/delete/:id').delete((req,res)=>{
     Employee.findByIdAndDelete(req.params.id)
     .then(()=>res.json('Employee Deleted'))
     .catch(err=>res.status(400).json('Employee Delete Error:'+err));
