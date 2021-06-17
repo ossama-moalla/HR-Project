@@ -1,10 +1,9 @@
 import React,{Component} from 'react';
 import axios from 'axios';
-import './components.css';
-import DatePicker from 'react-datepicker';
+import './../components.css';
 import { ChevronBarDown  } from 'bootstrap-icons-react';
 import * as moment from 'moment'
-import DateInput from './DateInput.component';
+import DateInput from './../DateInput.component';
 
 
 export default class Employee extends Component{
@@ -68,7 +67,7 @@ export default class Employee extends Component{
     {
         if(this.state.ErrorMessage)
         return(
-                <div style={{width:500,margin:"auto",marginTop:20}} class="alert alert-danger d-flex align-items-center" role="alert">
+                <div style={{width:500,margin:"auto",marginTop:20}} className="alert alert-danger d-flex align-items-center" role="alert">
 
                         <div style={{marginLeft:20}}>{this.state.ErrorMessage}</div>
                 </div>
@@ -134,7 +133,6 @@ export default class Employee extends Component{
             }); 
             
         }else{
-            console.log(employee.Gender)
             await axios.put("http://localhost:5000/employee/edit",employee)
             .then(res=>{console.log('Employee Updated');
             this.props.history.push({

@@ -11,23 +11,18 @@ const EmployeementSchema=new Schema({
         required:true,
         type:String
     },
-    LevelID:{
-        type:Schema.Types.ObjectId,
-        ref: 'EmployeementLevel',
-        required:true
-    },
-    CreateDate:{
+    Tasks:{
         required:true,
-        type: Date,
-        // The dates of the first and last episodes of
-        // Star Trek: The Next Generation
-        min: '1-1-2020',
-        max: '1-1-2100'
+        type:String
+    },
+    LevelNO:{
+        required:true,
+        type:Number
     },
     PartID:{
         type:Schema.Types.ObjectId,
         ref: 'Part',
-        required:true
+        required:false
     },
 
 },{

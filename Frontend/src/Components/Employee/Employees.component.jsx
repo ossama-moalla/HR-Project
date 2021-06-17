@@ -117,7 +117,7 @@ class Employees extends Component {
             
 
         return ( 
-                <div>
+                <div style={{backgroundColor:""}}>
                     
                     <h1>Employees:</h1>
 
